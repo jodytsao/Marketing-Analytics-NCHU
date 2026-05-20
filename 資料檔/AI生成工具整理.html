@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App原型 × 網站生成 × 影片生成 × 程式生成工具比較</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --border: #2a3045;
+    --accent1: #4f8ef7;
+    --accent2: #f75f8e;
+    --accent3: #4fdbb5;
+    --accent4: #f7c34f;
+    --accent5: #b07fff;
+    --text: #e8eaf2;
+    --muted: #6b7494;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .header-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  h1 span.a { color: var(--accent1); }
+  h1 span.b { color: var(--accent2); }
+  h1 span.c { color: var(--accent4); }
+  h1 span.d { color: var(--accent5); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  /* Tab switcher */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 10px 24px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { border-color: var(--accent1); color: var(--text); }
+
+  .tab-btn.active-proto {
+    background: rgba(79,142,247,0.15);
+    border-color: var(--accent1);
+    color: var(--accent1);
+    font-weight: 500;
+  }
+
+  .tab-btn.active-web {
+    background: rgba(247,95,142,0.15);
+    border-color: var(--accent2);
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  .tab-btn.active-video {
+    background: rgba(247,195,79,0.15);
+    border-color: var(--accent4);
+    color: var(--accent4);
+    font-weight: 500;
+  }
+
+  .tab-btn.active-code {
+    background: rgba(176,127,255,0.15);
+    border-color: var(--accent5);
+    color: var(--accent5);
+    font-weight: 500;
+  }
+
+  /* Panel */
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Tool cards grid */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover { transform: translateY(-2px); }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .card.blue::before { background: var(--accent1); border-color: var(--accent1); }
+  .card.pink::before { background: var(--accent2); border-color: var(--accent2); }
+  .card.green::before { background: var(--accent3); }
+  .card.yellow::before { background: var(--accent4); }
+  .card.purple::before { background: var(--accent5); }
+
+  .card:hover.blue { border-color: var(--accent1); }
+  .card:hover.pink { border-color: var(--accent2); }
+  .card:hover.green { border-color: var(--accent3); }
+  .card:hover.yellow { border-color: var(--accent4); }
+  .card:hover.purple { border-color: var(--accent5); }
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .tool-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .tool-category {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge-free { background: rgba(79,219,181,0.15); color: var(--accent3); border: 1px solid rgba(79,219,181,0.3); }
+  .badge-paid { background: rgba(247,95,142,0.15); color: var(--accent2); border: 1px solid rgba(247,95,142,0.3); }
+  .badge-freemium { background: rgba(247,195,79,0.15); color: var(--accent4); border: 1px solid rgba(247,195,79,0.3); }
+
+  .tool-desc {
+    font-size: 13px;
+    color: #a0a8c0;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .pros h4 { color: var(--accent3); margin-bottom: 5px; font-size: 11px; letter-spacing: 0.05em; }
+  .cons h4 { color: var(--accent2); margin-bottom: 5px; font-size: 11px; letter-spacing: 0.05em; }
+
+  .pros li, .cons li {
+    list-style: none;
+    padding-left: 14px;
+    position: relative;
+    color: #8090b0;
+    margin-bottom: 3px;
+    line-height: 1.5;
+  }
+
+  .pros li::before { content: '+'; position: absolute; left: 0; color: var(--accent3); }
+  .cons li::before { content: '−'; position: absolute; left: 0; color: var(--accent2); }
+
+  /* Comparison table */
+  .compare-wrapper {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 700px;
+  }
+
+  th {
+    padding: 14px 16px;
+    text-align: left;
+    background: var(--surface2);
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th:first-child { color: var(--text); }
+
+  td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: #9aa0bc;
+    line-height: 1.5;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td:first-child {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .dot-yes { color: var(--accent3); font-size: 16px; }
+  .dot-partial { color: var(--accent4); font-size: 16px; }
+  .dot-no { color: var(--muted); font-size: 16px; }
+
+  /* Recommendation box */
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .rec-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .rec-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rec-icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .rec-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .rec-card strong { color: var(--text); }
+
+  section-title {
+    display: block;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">Tool Landscape 2025</div>
+  <h1><span class="a">App 原型</span> × <span class="b">網站生成</span> × <span class="c">影片生成</span> × <span class="d">程式生成</span> 工具全攻略</h1>
+  <p class="subtitle">從 Figma 到 GitHub Copilot，找到最適合你的 AI 工具組合</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active-proto" onclick="showTab('proto', this, 'proto')">🎨 App 原型開發工具</button>
+  <button class="tab-btn" onclick="showTab('web', this, 'web')">🌐 網站生成工具</button>
+  <button class="tab-btn" onclick="showTab('video', this, 'video')">🎬 影片生成工具</button>
+  <button class="tab-btn" onclick="showTab('code', this, 'code')">💻 程式生成工具</button>
+</div>
+
+<!-- PANEL 1: App Prototyping -->
+<div id="proto" class="panel active">
+  <section-title>App 原型開發工具 — 6 款主流比較</section-title>
+  <div class="cards-grid">
+
+    <div class="card blue">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Figma</div>
+          <div class="tool-category">向量設計 + 互動原型</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">設計師首選的協作工具，支援元件系統、互動動效、Dev Mode 直出程式碼。2024年整合 AI 自動佈局（Figma AI）。</p>
+      <div class="tags">
+        <span class="tag">UI設計</span><span class="tag">互動原型</span><span class="tag">協作</span><span class="tag">Dev Mode</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>業界標準，生態最完整</li>
+            <li>即時多人協作</li>
+            <li>豐富插件市場</li>
+            <li>Dev Mode 直接交付</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>需學習曲線</li>
+            <li>付費版較貴</li>
+            <li>無法直接輸出可用程式碼</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Framer</div>
+          <div class="tool-category">設計 → 可發布網站</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">從原型直接發布為真實網站，支援 React 元件、CMS，近年加入 AI 生成功能（Framer AI）。</p>
+      <div class="tags">
+        <span class="tag">原型+發布</span><span class="tag">React</span><span class="tag">CMS</span><span class="tag">AI生成</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>設計即上線，零落差</li>
+            <li>動效能力強</li>
+            <li>CMS 整合方便</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>複雜邏輯需寫 code</li>
+            <li>學習曲線中等</li>
+            <li>鎖定自家平台</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Penpot</div>
+          <div class="tool-category">開源設計原型工具</div>
+        </div>
+        <span class="badge badge-free">Free / OSS</span>
+      </div>
+      <p class="tool-desc">Figma 的開源替代品，可自架伺服器，SVG-based，適合注重資料主權的團隊（如台灣政府/企業）。</p>
+      <div class="tags">
+        <span class="tag">開源</span><span class="tag">自架</span><span class="tag">SVG原生</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>完全免費可自架</li>
+            <li>資料不外流</li>
+            <li>CSS 直出</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>功能仍少於 Figma</li>
+            <li>插件生態較小</li>
+            <li>需維運成本</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Uizard</div>
+          <div class="tool-category">AI 草圖 → 原型</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">用手繪草圖或文字描述即可生成 App 原型，最快速的「概念驗證」工具，適合非設計師。</p>
+      <div class="tags">
+        <span class="tag">AI生成</span><span class="tag">草圖掃描</span><span class="tag">快速MVP</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>最低門檻</li>
+            <li>文字 → 原型超快</li>
+            <li>團隊共編</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>設計精度有限</li>
+            <li>不適合精緻交付</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Marvel App</div>
+          <div class="tool-category">輕量互動原型</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">極簡上手的熱區連結工具，適合快速製作 clickable prototype 給使用者測試，無需設計能力。</p>
+      <div class="tags">
+        <span class="tag">使用者測試</span><span class="tag">熱區連結</span><span class="tag">快速</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>5 分鐘上手</li>
+            <li>用戶測試功能內建</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>設計能力弱</li>
+            <li>動效非常有限</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">ProtoPie</div>
+          <div class="tool-category">高保真互動原型</div>
+        </div>
+        <span class="badge badge-paid">Paid</span>
+      </div>
+      <p class="tool-desc">業界最強互動邏輯工具，可模擬感測器、API 串接、條件邏輯，常用於高端 App 提案展示。</p>
+      <div class="tags">
+        <span class="tag">高保真</span><span class="tag">感測器</span><span class="tag">API模擬</span><span class="tag">展示</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>互動細節最強</li>
+            <li>可與 Figma 整合</li>
+            <li>硬體感測器模擬</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>學習曲線陡</li>
+            <li>無法上線部署</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PANEL 2: Website Generation -->
+<div id="web" class="panel">
+  <section-title>AI 網站生成工具 — 6 款主流比較</section-title>
+  <div class="cards-grid">
+
+    <div class="card pink">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Bolt.new</div>
+          <div class="tool-category">AI 全端生成 + 部署</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">StackBlitz 出品，在瀏覽器直接以自然語言生成完整 React/Vue/Node 應用，可一鍵部署 Netlify，2024 年爆紅。</p>
+      <div class="tags">
+        <span class="tag">全端生成</span><span class="tag">React</span><span class="tag">一鍵部署</span><span class="tag">Claude後端</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>真實可運行程式碼</li>
+            <li>全端包含後端</li>
+            <li>即時預覽+部署</li>
+            <li>支援套件安裝</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>複雜專案 token 燃燒快</li>
+            <li>免費版有限制</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Lovable</div>
+          <div class="tool-category">AI 全端 SaaS 生成</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">前身 GPT Engineer，專注生成可上線的 SaaS 應用，整合 Supabase 資料庫，適合快速做 MVP。</p>
+      <div class="tags">
+        <span class="tag">SaaS MVP</span><span class="tag">Supabase</span><span class="tag">GitHub同步</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>資料庫整合流暢</li>
+            <li>Auth 內建</li>
+            <li>GitHub 雙向同步</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>設計自由度較低</li>
+            <li>大型專案易出錯</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">v0.dev</div>
+          <div class="tool-category">Vercel UI 元件生成</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">Vercel 出品，專攻 UI 元件生成（React + shadcn/ui + Tailwind），適合前端開發者快速產出元件庫。</p>
+      <div class="tags">
+        <span class="tag">UI元件</span><span class="tag">shadcn</span><span class="tag">Tailwind</span><span class="tag">Next.js</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>元件品質高</li>
+            <li>可直接複製進專案</li>
+            <li>整合 Vercel 部署</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>非全站生成</li>
+            <li>需有 React 基礎</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Webflow</div>
+          <div class="tool-category">No-code 視覺化建站</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">業界最成熟的 no-code 建站平台，CSS 可視化操作，CMS 強大，近年整合 AI 生成（Webflow AI）。</p>
+      <div class="tags">
+        <span class="tag">No-code</span><span class="tag">CMS</span><span class="tag">企業級</span><span class="tag">SEO</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>設計自由度最高</li>
+            <li>CMS 功能完整</li>
+            <li>SEO 友好</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>學習成本高</li>
+            <li>月費偏高</li>
+            <li>複雜互動需 Webflow Logic</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Durable</div>
+          <div class="tool-category">30秒 AI 快速建站</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">輸入行業+描述，30 秒生成整個品牌網站含文案、圖片，主打中小企業快速開業需求。</p>
+      <div class="tags">
+        <span class="tag">超快生成</span><span class="tag">SME適用</span><span class="tag">品牌網站</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>門檻極低</li>
+            <li>含文案自動生成</li>
+            <li>適合中小商家</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>自定義空間小</li>
+            <li>設計模板感重</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Wix Studio AI</div>
+          <div class="tool-category">AI + 拖拉建站</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">Wix 進化版，整合 AI 自動版型、文案、圖片生成，適合需要電商功能的中小企業，台灣使用率高。</p>
+      <div class="tags">
+        <span class="tag">電商</span><span class="tag">拖拉</span><span class="tag">AI版型</span><span class="tag">多語言</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>中文介面支援</li>
+            <li>電商功能完整</li>
+            <li>App Market 豐富</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>程式碼輸出受限</li>
+            <li>進階需費用</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PANEL 3: Video Generation -->
+<div id="video" class="panel">
+  <section-title>AI 影片生成工具 — 6 款主流比較</section-title>
+  <div class="cards-grid">
+
+    <div class="card yellow">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Sora</div>
+          <div class="tool-category">OpenAI 文字→影片</div>
+        </div>
+        <span class="badge badge-paid">Paid</span>
+      </div>
+      <p class="tool-desc">OpenAI 旗艦影片生成模型，支援最長 20 秒、1080p 輸出，物理模擬真實感業界領先，整合於 ChatGPT Plus/Pro。</p>
+      <div class="tags">
+        <span class="tag">文字生成</span><span class="tag">1080p</span><span class="tag">物理模擬</span><span class="tag">長影片</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>影片品質最佳</li>
+            <li>物理一致性強</li>
+            <li>支援影片延伸/重新混合</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>需 ChatGPT Pro ($200/月)</li>
+            <li>生成速度慢</li>
+            <li>字元控制仍有限</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Runway Gen-3</div>
+          <div class="tool-category">創意影片生成平台</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">影片生成領域最資深的平台，支援文字→影片、圖片→影片、影片→影片，廣泛用於電影/廣告製作。</p>
+      <div class="tags">
+        <span class="tag">圖片轉影片</span><span class="tag">風格轉換</span><span class="tag">廣告製作</span><span class="tag">API</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>功能最多元</li>
+            <li>有 API 可整合</li>
+            <li>創意控制度高</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>免費額度少</li>
+            <li>進階需 $35+/月</li>
+            <li>學習曲線中等</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Kling AI</div>
+          <div class="tool-category">快手出品 高品質生成</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">快手（Kuaishou）出品，亞洲市場最受矚目的影片生成工具，支援最長 3 分鐘影片，中文提示詞友好。</p>
+      <div class="tags">
+        <span class="tag">長影片3分鐘</span><span class="tag">中文提示</span><span class="tag">人物動作</span><span class="tag">亞洲場景</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>中文提示效果佳</li>
+            <li>亞洲臉孔/場景自然</li>
+            <li>最長可達 3 分鐘</li>
+            <li>免費額度充足</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>歐美場景相對弱</li>
+            <li>高峰期排隊久</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">HeyGen</div>
+          <div class="tool-category">AI 數位人 / 行銷影片</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">以 AI 數位人（Avatar）為核心，輸入文字即可生成真人說話影片，支援 40+ 語言配音，台灣電商/教育業廣泛使用。</p>
+      <div class="tags">
+        <span class="tag">數位人</span><span class="tag">多語配音</span><span class="tag">行銷影片</span><span class="tag">電商</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>數位人品質最佳</li>
+            <li>繁中配音支援</li>
+            <li>簡報→影片一鍵轉</li>
+            <li>自訂 Avatar</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>非影片創意生成</li>
+            <li>進階方案$29+/月</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Pika Labs</div>
+          <div class="tool-category">輕量 AI 影片生成</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">以「Pikaffects」特效功能著稱（爆炸、融化、縮小等），上手容易，適合行銷短影片與社群內容創作。</p>
+      <div class="tags">
+        <span class="tag">特效豐富</span><span class="tag">社群影片</span><span class="tag">快速生成</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>特效創意多樣</li>
+            <li>生成速度快</li>
+            <li>免費額度適中</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>長影片能力弱</li>
+            <li>寫實度不如 Sora</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">InVideo AI</div>
+          <div class="tool-category">文字→完整影片編輯</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">輸入主題或腳本，自動生成含素材、字幕、音樂的完整影片，適合行銷人員和內容創作者快速產出解說影片。</p>
+      <div class="tags">
+        <span class="tag">腳本→影片</span><span class="tag">自動字幕</span><span class="tag">素材庫</span><span class="tag">行銷</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>全流程自動化</li>
+            <li>素材庫豐富</li>
+            <li>適合非設計師</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>創意生成能力弱</li>
+            <li>素材感較重</li>
+            <li>免費版有浮水印</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PANEL 4: Code Generation -->
+<div id="code" class="panel">
+  <section-title>AI 程式生成工具 — 6 款主流比較</section-title>
+  <div class="cards-grid">
+
+    <div class="card purple">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">GitHub Copilot</div>
+          <div class="tool-category">IDE 內嵌 AI 程式助理</div>
+        </div>
+        <span class="badge badge-paid">$10+/月</span>
+      </div>
+      <p class="tool-desc">微軟/OpenAI 出品，深度整合 VS Code、JetBrains 等主流 IDE，即時補全程式碼、生成函式、解釋 bug，目前最廣泛使用的 AI 編程工具。</p>
+      <div class="tags">
+        <span class="tag">IDE整合</span><span class="tag">即時補全</span><span class="tag">多語言</span><span class="tag">企業版</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>IDE 整合最成熟</li>
+            <li>支援 70+ 語言</li>
+            <li>企業版合規安全</li>
+            <li>Copilot Chat 問答</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>需付費（學生免費）</li>
+            <li>大型重構能力有限</li>
+            <li>依賴網路連線</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Claude Code</div>
+          <div class="tool-category">Agentic 終端機開發</div>
+        </div>
+        <span class="badge badge-paid">用量計費</span>
+      </div>
+      <p class="tool-desc">Anthropic 出品的 CLI 工具，可直接讀取整個程式庫、執行指令、修改檔案，以 agent 模式完成跨檔案複雜任務，2025 年最受矚目的開發工具。</p>
+      <div class="tags">
+        <span class="tag">Agent模式</span><span class="tag">跨檔案</span><span class="tag">CLI</span><span class="tag">程式庫理解</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>理解整個 codebase</li>
+            <li>自主執行複雜任務</li>
+            <li>Git 整合自動提交</li>
+            <li>最適合 AIDC 開發</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>需熟悉終端機操作</li>
+            <li>用量計費需控制</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Cursor</div>
+          <div class="tool-category">AI-first 程式碼編輯器</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">基於 VS Code 分叉的 AI 原生編輯器，支援 Composer（跨檔案生成）、Chat、Tab 補全，可選擇 Claude/GPT-4/Gemini 多種模型後端。</p>
+      <div class="tags">
+        <span class="tag">AI編輯器</span><span class="tag">多模型</span><span class="tag">Composer</span><span class="tag">跨檔案</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>體驗最流暢</li>
+            <li>可切換 Claude 後端</li>
+            <li>免費版夠用</li>
+            <li>VS Code 習慣無縫遷移</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>非官方 VS Code 分叉</li>
+            <li>Pro 版 $20/月</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Windsurf</div>
+          <div class="tool-category">Agentic AI 編輯器</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">Codeium 出品，主打「Cascade」agent 功能，能自主規劃並執行多步驟任務，2025 年被 OpenAI 收購後引發業界關注。</p>
+      <div class="tags">
+        <span class="tag">Cascade Agent</span><span class="tag">自主規劃</span><span class="tag">免費額度大</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>免費版功能強</li>
+            <li>Agent 規劃能力佳</li>
+            <li>上下文理解深</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>被 OpenAI 收購後方向未定</li>
+            <li>社群資源少於 Cursor</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Replit Agent</div>
+          <div class="tool-category">雲端 IDE + AI 全端</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">瀏覽器內的雲端開發環境，AI Agent 可從自然語言描述直接建立完整專案、部署上線，無需本機環境設置，適合快速驗證想法。</p>
+      <div class="tags">
+        <span class="tag">雲端IDE</span><span class="tag">零環境設置</span><span class="tag">一鍵部署</span><span class="tag">協作</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>零安裝即可開始</li>
+            <li>生成+部署一體</li>
+            <li>教學/教育場景理想</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>效能不如本機</li>
+            <li>大型專案限制多</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-header">
+        <div>
+          <div class="tool-name">Amazon Q Developer</div>
+          <div class="tool-category">企業級 AI 開發助理</div>
+        </div>
+        <span class="badge badge-freemium">Freemium</span>
+      </div>
+      <p class="tool-desc">AWS 出品，前身 CodeWhisperer，深度整合 AWS 生態，支援程式碼掃描、安全漏洞偵測、資料庫 schema 理解，適合企業雲端開發。</p>
+      <div class="tags">
+        <span class="tag">AWS整合</span><span class="tag">安全掃描</span><span class="tag">企業合規</span><span class="tag">免費個人版</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>優點</h4>
+          <ul>
+            <li>個人版完全免費</li>
+            <li>AWS 資源理解最深</li>
+            <li>安全合規掃描內建</li>
+          </ul>
+        </div>
+        <div class="cons"><h4>缺點</h4>
+          <ul>
+            <li>非 AWS 環境優勢弱</li>
+            <li>創意生成不如 Cursor</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showTab(id, btn, type) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.className = 'tab-btn';
+  });
+
+  if (type === 'proto') btn.classList.add('active-proto');
+  else if (type === 'web') btn.classList.add('active-web');
+  else if (type === 'video') btn.classList.add('active-video');
+  else if (type === 'code') btn.classList.add('active-code');
+}
+</script>
+</body>
+</html>
