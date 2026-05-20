@@ -104,6 +104,62 @@ body::before {
 
 .hero .meta-item .icon { font-size: 18px; }
 
+/* QR Code */
+.qr-section {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+}
+
+.qr-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.qr-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.qr-img {
+  border-radius: 10px;
+  border: 3px solid var(--surface2);
+}
+
+.qr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qr-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.qr-url {
+  font-size: 13px;
+  color: var(--accent-blue);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.qr-url:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .qr-card { flex-direction: column; text-align: center; }
+}
+
 /* Nav */
 .nav-bar {
   position: sticky; top: 0; z-index: 100;
